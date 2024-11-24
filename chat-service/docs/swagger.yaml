@@ -1,0 +1,206 @@
+basePath: /
+definitions:
+  chat-service_internal_model.CreateChatResponse:
+    properties:
+      chat_number:
+        example: 1
+        type: integer
+    type: object
+  chat-service_internal_model.CreateMessageRequest:
+    properties:
+      body:
+        example: Welcome to instabug!!
+        type: string
+    required:
+    - body
+    type: object
+  chat-service_internal_model.CreateMessageResponse:
+    properties:
+      message_number:
+        example: 1
+        type: integer
+    type: object
+  chat-service_internal_model.ErrorResponse:
+    properties:
+      error:
+        example: Error message here
+        type: string
+    type: object
+  chat-service_internal_model.MessageResponse:
+    properties:
+      body:
+        example: Welcome to instabug!!
+        type: string
+      chat_id:
+        example: 1
+        type: integer
+      created_at:
+        example: "2024-11-19T20:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      number:
+        example: 1
+        type: integer
+    type: object
+  internal_handler.CreateMessageRequest:
+    properties:
+      body:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A service for managing chats and messages
+  title: Chat Service API
+  version: "1.0"
+paths:
+  /applications/{token}/chats:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new chat for an application
+      parameters:
+      - description: Application Token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.CreateChatResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.ErrorResponse'
+      summary: Create a new chat
+      tags:
+      - chats
+  /applications/{token}/chats/{number}/messages:
+    get:
+      description: Retrieves all messages from a specific chat
+      parameters:
+      - description: Application Token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Chat Number
+        in: path
+        name: number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/chat-service_internal_model.MessageResponse'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.ErrorResponse'
+      summary: List messages
+      tags:
+      - messages
+    post:
+      consumes:
+      - application/json
+      description: Creates a new message in a specific chat
+      parameters:
+      - description: Application Token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Chat Number
+        in: path
+        name: number
+        required: true
+        type: integer
+      - description: Message Content
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/chat-service_internal_model.CreateMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.CreateMessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.ErrorResponse'
+      summary: Create a message
+      tags:
+      - messages
+  /applications/{token}/chats/{number}/messages/search:
+    get:
+      consumes:
+      - application/json
+      description: Search for messages within a chat based on query text
+      parameters:
+      - description: Application Token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Chat Number
+        in: path
+        name: number
+        required: true
+        type: integer
+      - description: Search Query
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/chat-service_internal_model.MessageResponse'
+            type: array
+        "400":
+          description: Search query is required
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.ErrorResponse'
+        "404":
+          description: Chat not found
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/chat-service_internal_model.ErrorResponse'
+      summary: Search messages
+      tags:
+      - messages
+swagger: "2.0"
